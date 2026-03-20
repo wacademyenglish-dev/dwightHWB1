@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>HOMEWORK | WOLFLIX: The Office</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&family=Bebas+Neue&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-base: #141414;
+            --brand-accent: #E50914; /* Netflix Red */
+            --success-green: #1DB954;
+        }
+
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background-color: var(--bg-base); 
+            color: white;
+            -webkit-tap-highlight-color: transparent;
+            overflow: hidden;
+        }
+
+        .title-font { font-family: 'Bebas Neue', sans-serif; letter-spacing: 0.05em; }
+        .brand-red { color: var(--brand-accent); }
+        .bg-brand-red { background-color: var(--brand-accent); }
+        
+        .glass-card {
+            background: rgba(24, 24, 24, 0.95);
+            border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 12px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.8);
+        }
+        
+        .option-btn {
+            background: #222;
+            border: 1px solid transparent;
+            transition: all 0.2s;
+            text-align: left;
+            width: 100%;
+            padding: 18px;
+            border-radius: 8px;
+            font-size: 16px;
+            color: #b3b3b3;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            cursor: pointer;
+        }
+        .option-btn:hover:not(.locked) {
+            background: #333;
+            color: white;
+            border-color: rgba(255,255,255,0.2);
+        }
+        
+        /* Feedback States */
+        .option-btn.correct {
+            background: rgba(29, 185, 84, 0.15) !important;
+            border-color: var(--success-green) !important;
+            color: var(--success-green) !important;
+            font-weight: 800;
+        }
+        .option-btn.wrong {
+            background: rgba(229, 9, 20, 0.15) !important;
+            border-color: var(--brand-accent) !important;
+            color: var(--brand-accent) !important;
+        }
+
+        .step-card {
+            display: none;
+            animation: slideIn 0.4s ease-out forwards;
+        }
+        .step-card.active {
+            display: block;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .feedback-container {
+            animation: slideDown 0.3s ease-out forwards;
+        }
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .progress-bar-container {
+            height: 4px;
+            background: rgba(255,255,255,0.1);
+            width: 100%;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 100;
+        }
+        #progress-fill {
+            height: 100%;
+            background: var(--brand-accent);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+    </style>
+</head>
+<body class="h-screen flex flex-col">
+
+    <div class="progress-bar-container">
+        <div id="progress-fill"></div>
+    </div>
+
+    <header class="pt-10 pb-4 px-6 text-center shrink-0">
+        <p class="text-[10px] font-black uppercase tracking-widest brand-red mb-1">Wolflix Homework</p>
+        <h1 id="header-title" class="title-font text-4xl tracking-wide uppercase text-white">The Office</h1>
+    </header>
+
+    <main class="flex-grow px-6 flex items-center justify-center relative overflow-hidden">
+        
+        <!-- INTRO CARD -->
+        <div id="step-0" class="step-card active w-full max-w-md text-center space-y-8">
+            <div class="w-full h-56 mx-auto bg-[#141414] rounded-xl shadow-2xl overflow-hidden relative border border-white/5 flex items-center justify-center group">
+                <img src="https://images.unsplash.com/photo-1542626991-cbc4e32524cc?w=800&q=80" class="absolute inset-0 w-full h-full object-cover opacity-50 transition-transform duration-700 group-hover:scale-105">
+                <div class="absolute inset-0 bg-gradient-to-t from-[#141414] to-transparent"></div>
+                <i class="fas fa-fire text-6xl brand-red relative z-10 drop-shadow-xl"></i>
+            </div>
+            <div class="space-y-2">
+                <h2 class="title-font text-6xl tracking-wide uppercase leading-none text-white">Ready for the<br>Challenge?</h2>
+                <p class="text-[#888] text-sm font-medium">15 Tasks • Modals of Deduction • B1 Level</p>
+            </div>
+            <button onclick="nextStep()" class="w-full py-4 bg-brand-red text-white font-black uppercase tracking-widest rounded text-lg shadow-xl hover:bg-red-700 transition-colors">
+                Play Mission
+            </button>
+        </div>
+
+        <!-- GRAMMAR (1-8) -->
+        <div id="step-1" class="step-card w-full max-w-md glass-card p-8 space-y-6" data-type="choice" data-correct="0">
+            <span class="text-[10px] font-black uppercase tracking-widest brand-red">Deduction 1/8</span>
+            <p class="text-2xl font-bold leading-tight">The handle is hot. There _____ a fire!</p>
+            <div class="space-y-3 options-group">
+                <button class="option-btn" onclick="selectOption(this)">must be</button>
+                <button class="option-btn" onclick="selectOption(this)">can't be</button>
+                <button class="option-btn" onclick="selectOption(this)">might be</button>
+            </div>
+        </div>
+
+        <div id="step-2" class="step-card w-full max-w-md glass-card p-8 space-y-6" data-type="choice" data-correct="2">
+            <span class="text-[10px] font-black uppercase tracking-widest brand-red">Deduction 2/8</span>
+            <p class="text-2xl font-bold leading-tight">The smoke _____ coming from the air duct, but we aren't sure.</p>
+            <div class="space-y-3 options-group">
+                <button class="option-btn" onclick="selectOption(this)">must be</button>
+                <button class="option-btn" onclick="selectOption(this)">can't be</button>
+                <button class="option-btn" onclick="selectOption(this)">could be</button>
+            </div>
+        </div>
+
+        <div id="step-3" class="step-card w-full max-w-md glass-card p-8 space-y-6" data-type="choice" data-correct="1">
+            <span class="text-[10px] font-black uppercase tracking-widest brand-red">Deduction 3/8</span>
+            <p class="text-2xl font-bold leading-tight">This is a training exercise. It _____ real.</p>
+            <div class="space-y-3 options-group">
+                <button class="option-btn" onclick="selectOption(this)">must be</button>
+                <button class="option-btn" onclick="selectOption(this)">can't be</button>
+                <button class="option-btn" onclick="selectOption(this)">might be</button>
+            </div>
+        </div>
+
+        <div id="step-4" class="step-card w-full max-w-md glass-card p-8 space-y-6" data-type="choice" data-correct="0">
+            <span class="text-[10px] font-black uppercase tracking-widest brand-red">Deduction 4/8</span>
+            <p class="text-2xl font-bold leading-tight">He works 14 hours a day. He _____ exhausted.</p>
+            <div class="space-y-3 options-group">
+                <button class="option-btn" onclick="selectOption(this)">must be</button>
+                <button class="option-btn" onclick="selectOption(this)">can't be</button>
+                <button class="option-btn" onclick="selectOption(this)">might be</button>
+            </div>
+        </div>
+
+        <div id="step-5" class="step-card w-full max-w-md glass-card p-8 space-y-6" data-type="choice" data-correct="1">
+            <span class="text-[10px] font-black uppercase tracking-widest brand-red">Deduction 5/8</span>
+            <p class="text-2xl font-bold leading-tight">That guy _____ the CEO. He's wearing pajamas!</p>
+            <div class="space-y-3 options-group">
+                <button class="option-btn" onclick="selectOption(this)">must be</button>
+                <button class="option-btn" onclick="selectOption(this)">can't be</button>
+                <button class="option-btn" onclick="selectOption(this)">could be</button>
+            </div>
+        </div>
+
+        <div id="step-6" class="step-card w-full max-w-md glass-card p-8 space-y-6" data-type="choice" data-correct="2">
+            <span class="text-[10px] font-black uppercase tracking-widest brand-red">Deduction 6/8</span>
+            <p class="text-2xl font-bold leading-tight">I don't know where Sarah is. She _____ in the meeting room.</p>
+            <div class="space-y-3 options-group">
+                <button class="option-btn" onclick="selectOption(this)">must be</button>
+                <button class="option-btn" onclick="selectOption(this)">can't be</button>
+                <button class="option-btn" onclick="selectOption(this)">might be</button>
+            </div>
+        </div>
+
+        <div id="step-7" class="step-card w-full max-w-md glass-card p-8 space-y-6" data-type="choice" data-correct="0">
+            <span class="text-[10px] font-black uppercase tracking-widest brand-red">Deduction 7/8</span>
+            <p class="text-2xl font-bold leading-tight">You hear a loud crash outside. There _____ an accident!</p>
+            <div class="space-y-3 options-group">
+                <button class="option-btn" onclick="selectOption(this)">must be</button>
+                <button class="option-btn" onclick="selectOption(this)">can't be</button>
+                <button class="option-btn" onclick="selectOption(this)">could be</button>
+            </div>
+        </div>
+
+        <div id="step-8" class="step-card w-full max-w-md glass-card p-8 space-y-6" data-type="choice" data-correct="1">
+            <span class="text-[10px] font-black uppercase tracking-widest brand-red">Deduction 8/8</span>
+            <p class="text-2xl font-bold leading-tight">Someone says they bought a Ferrari for $100. That _____ true!</p>
+            <div class="space-y-3 options-group">
+                <button class="option-btn" onclick="selectOption(this)">must be</button>
+                <button class="option-btn" onclick="selectOption(this)">can't be</button>
+                <button class="option-btn" onclick="selectOption(this)">might be</button>
+            </div>
+        </div>
+
+        <!-- VOCABULARY (9-15) -->
+        <div id="step-9" class="step-card w-full max-w-md glass-card p-8 space-y-6" data-type="choice" data-correct="0">
+            <span class="text-[10px] font-black uppercase tracking-widest brand-red">Vocabulary 1/7</span>
+            <p class="text-2xl font-bold leading-tight">What is the safety _____ in your building?</p>
+            <div class="space-y-3 options-group">
+                <button class="option-btn" onclick="selectOption(this)">procedure</button>
+                <button class="option-btn" onclick="selectOption(this)">simulation</button>
+                <button class="option-btn" onclick="selectOption(this)">option</button>
+            </div>
+        </div>
+
+        <div id="step-10" class="step-card w-full max-w-md glass-card p-8 space-y-6" data-type="choice" data-correct="1">
+            <span class="text-[10px] font-black uppercase tracking-widest brand-red">Vocabulary 2/7</span>
+            <p class="text-2xl font-bold leading-tight">A practice exercise that copies a real situation is a _____.</p>
+            <div class="space-y-3 options-group">
+                <button class="option-btn" onclick="selectOption(this)">preparedness</button>
+                <button class="option-btn" onclick="selectOption(this)">simulation</button>
+                <button class="option-btn" onclick="selectOption(this)">trap</button>
+            </div>
+        </div>
+
+        <div id="step-11" class="step-card w-full max-w-md glass-card p-8 space-y-6" data-type="choice" data-correct="0">
+            <span class="text-[10px] font-black uppercase tracking-widest brand-red">Vocabulary 3/7</span>
+            <p class="text-2xl font-bold leading-tight">If you cannot escape from a place, you are _____.</p>
+            <div class="space-y-3 options-group">
+                <button class="option-btn" onclick="selectOption(this)">trapped</button>
+                <button class="option-btn" onclick="selectOption(this)">replaced</button>
+                <button class="option-btn" onclick="selectOption(this)">viable</button>
+            </div>
+        </div>
+
+        <div id="step-12" class="step-card w-full max-w-md glass-card p-8 space-y-6" data-type="choice" data-correct="1">
+            <span class="text-[10px] font-black uppercase tracking-widest brand-red">Vocabulary 4/7</span>
+            <p class="text-2xl font-bold leading-tight">Is jumping out the window a _____ option?</p>
+            <div class="space-y-3 options-group">
+                <button class="option-btn" onclick="selectOption(this)">trapped</button>
+                <button class="option-btn" onclick="selectOption(this)">viable</button>
+                <button class="option-btn" onclick="selectOption(this)">procedure</button>
+            </div>
+        </div>
+
+        <div id="step-13" class="step-card w-full max-w-md glass-card p-8 space-y-6" data-type="choice" data-correct="1">
+            <span class="text-[10px] font-black uppercase tracking-widest brand-red">Vocabulary 5/7</span>
+            <p class="text-2xl font-bold leading-tight">Things can be _____, but human lives cannot.</p>
+            <div class="space-y-3 options-group">
+                <button class="option-btn" onclick="selectOption(this)">simulated</button>
+                <button class="option-btn" onclick="selectOption(this)">replaced</button>
+                <button class="option-btn" onclick="selectOption(this)">prepared</button>
+            </div>
+        </div>
+
+        <div id="step-14" class="step-card w-full max-w-md glass-card p-8 space-y-6" data-type="choice" data-correct="0">
+            <span class="text-[10px] font-black uppercase tracking-widest brand-red">Vocabulary 6/7</span>
+            <p class="text-2xl font-bold leading-tight">Panic will show their true _____.</p>
+            <div class="space-y-3 options-group">
+                <button class="option-btn" onclick="selectOption(this)">preparedness</button>
+                <button class="option-btn" onclick="selectOption(this)">trapped</button>
+                <button class="option-btn" onclick="selectOption(this)">replace</button>
+            </div>
+        </div>
+
+        <div id="step-15" class="step-card w-full max-w-md glass-card p-8 space-y-6" data-type="choice" data-correct="0">
+            <span class="text-[10px] font-black uppercase tracking-widest brand-red">Vocabulary 7/7</span>
+            <p class="text-2xl font-bold leading-tight">This is not a real fire, it's _____ a training exercise.</p>
+            <div class="space-y-3 options-group">
+                <button class="option-btn" onclick="selectOption(this)">merely</button>
+                <button class="option-btn" onclick="selectOption(this)">must</button>
+                <button class="option-btn" onclick="selectOption(this)">viable</button>
+            </div>
+        </div>
+
+        <!-- RESULT CARD -->
+        <div id="step-result" class="step-card w-full max-w-md text-center space-y-8">
+            <div class="w-24 h-24 bg-brand-red rounded-full flex items-center justify-center mx-auto text-white text-4xl shadow-[0_0_40px_rgba(229,9,20,0.4)]">
+                <i class="fas fa-star"></i>
+            </div>
+            <div class="space-y-2">
+                <h2 class="title-font text-6xl tracking-wide uppercase text-white">Episode Cleared</h2>
+                <p id="result-score" class="text-xl font-bold text-white"></p>
+                <p class="text-[#888] text-sm font-medium">Take a screenshot and send it to your teacher!</p>
+            </div>
+            <div class="space-y-4 pt-8 border-t border-white/5">
+                <p class="text-[10px] font-black uppercase tracking-widest text-[#888]">Post-Credits Scene</p>
+                <button onclick="window.open('https://www.youtube.com/watch?v=gO8N3L_aERg', '_blank')" class="w-full py-4 bg-white text-black font-black uppercase tracking-widest rounded flex items-center justify-center gap-3 hover:bg-gray-200 transition-colors shadow-xl">
+                    <i class="fab fa-youtube text-red-600 text-xl"></i> Watch the Scene
+                </button>
+                <button onclick="location.reload()" class="w-full py-3 bg-transparent text-white/50 font-bold uppercase tracking-widest rounded text-xs hover:text-white transition-colors border border-white/10 hover:border-white/30">
+                    Restart Episode
+                </button>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Navigation Footer -->
+    <footer id="nav-footer" class="p-6 shrink-0 flex gap-4 max-w-md mx-auto w-full">
+        <button id="prev-btn" onclick="prevStep()" class="flex-1 py-4 bg-[#222] border border-white/5 rounded font-black uppercase tracking-widest text-[10px] hidden hover:bg-[#333] transition-colors">Back</button>
+        <!-- The global Next button is hidden during quizzes to force the correct answer -->
+        <button id="next-btn" onclick="nextStep()" class="flex-[2] py-4 bg-brand-red text-white rounded font-black uppercase tracking-widest text-[10px] hidden hover:bg-red-700 transition-colors shadow-lg">Next</button>
+    </footer>
+
+    <script>
+        let currentStep = 0;
+        const totalSteps = 17; // Intro + 15 Questions + Result
+        let firstTryScore = 0;
+
+        function updateProgress() {
+            const percentage = (currentStep / (totalSteps - 1)) * 100;
+            document.getElementById('progress-fill').style.width = percentage + '%';
+        }
+
+        function selectOption(btn) {
+            const parentCard = btn.closest('.step-card');
+            
+            // If already answered correctly, ignore extra clicks
+            if (parentCard.classList.contains('answered')) return;
+
+            const correctIdx = parseInt(parentCard.getAttribute('data-correct'));
+            const options = Array.from(parentCard.querySelectorAll('.option-btn'));
+            const selectedIdx = options.indexOf(btn);
+
+            if (selectedIdx === correctIdx) {
+                // CORRECT
+                btn.classList.add('correct');
+                parentCard.classList.add('answered');
+                
+                // Fade out other options
+                options.forEach(b => {
+                    if (b !== btn) {
+                        b.style.opacity = '0.4';
+                        b.classList.remove('wrong');
+                        b.classList.add('cursor-default');
+                    }
+                });
+
+                // If correct on first try, add score
+                if (!parentCard.hasAttribute('data-mistake')) {
+                    firstTryScore++;
+                }
+
+                // Inject Immediate Feedback
+                let feedback = parentCard.querySelector('.feedback-container');
+                if (!feedback) {
+                    feedback = document.createElement('div');
+                    feedback.className = 'feedback-container mt-6 p-4 bg-[var(--success-green)]/10 border border-[var(--success-green)]/30 rounded-lg text-center shadow-lg';
+                    
+                    const isLastQuestion = currentStep === totalSteps - 2;
+                    const nextText = isLastQuestion ? "VIEW RESULT" : "NEXT";
+                    
+                    feedback.innerHTML = `
+                        <p class="text-[var(--success-green)] font-black uppercase tracking-widest text-xs mb-3">
+                            <i class="fas fa-check-circle mr-2"></i> Correct!
+                        </p>
+                        <button onclick="nextStep()" class="w-full py-3 bg-[var(--brand-accent)] text-white font-black uppercase tracking-[0.2em] rounded text-sm hover:bg-red-700 transition-colors">
+                            ${nextText} <i class="fas fa-arrow-right ml-2"></i>
+                        </button>
+                    `;
+                    parentCard.appendChild(feedback);
+                }
+
+                updateUI(); 
+
+            } else {
+                // WRONG
+                btn.classList.add('wrong');
+                parentCard.setAttribute('data-mistake', 'true');
+            }
+        }
+
+        function nextStep() {
+            const steps = document.querySelectorAll('.step-card');
+            if (currentStep < steps.length - 1) {
+                steps[currentStep].classList.remove('active');
+                currentStep++;
+                steps[currentStep].classList.add('active');
+                
+                if (currentStep === steps.length - 1) {
+                    calculateResult();
+                }
+            }
+            updateUI();
+        }
+
+        function prevStep() {
+            const steps = document.querySelectorAll('.step-card');
+            if (currentStep > 0) {
+                steps[currentStep].classList.remove('active');
+                currentStep--;
+                steps[currentStep].classList.add('active');
+            }
+            updateUI();
+        }
+
+        function updateUI() {
+            const nextBtn = document.getElementById('next-btn');
+            const prevBtn = document.getElementById('prev-btn');
+            
+            // Hide navigation at start or end
+            if (currentStep === 0 || currentStep === totalSteps - 1) {
+                nextBtn.classList.add('hidden');
+                prevBtn.classList.add('hidden');
+            } else {
+                prevBtn.classList.remove('hidden');
+                
+                // Show global "Next" only if the card is already correctly answered
+                const currentCard = document.getElementById('step-' + currentStep);
+                if (currentCard && currentCard.classList.contains('answered')) {
+                    nextBtn.classList.remove('hidden');
+                    nextBtn.innerText = currentStep === totalSteps - 2 ? "Finish" : "Next";
+                } else {
+                    nextBtn.classList.add('hidden'); // Hide to force the correct answer
+                }
+            }
+            updateProgress();
+        }
+
+        function calculateResult() {
+            const questions = document.querySelectorAll('[data-type="choice"]');
+            document.getElementById('result-score').innerText = `You scored ${firstTryScore} out of ${questions.length} on the first try!`;
+        }
+
+        // Initialize progress
+        updateProgress();
+    </script>
+
+</body>
+</html>
